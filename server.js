@@ -36,7 +36,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 let users = [
   {
     id: 1,
-    username: 'admin',
+    username: 'admin987456123',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     role: 'admin'
   }
