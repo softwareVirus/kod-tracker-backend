@@ -15,7 +15,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://kod-tracker-frontend.vercel.app'], // React dev servers and Vercel
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://levo-kod-app.vercel.app'], // React dev servers and Vercel
   credentials: true
 }));
 app.use(express.json());
@@ -34,7 +34,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 let users = [
   {
     id: 1,
-    username: 'admin9582',
+    username: 'admin235',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     role: 'admin'
   }
@@ -148,7 +148,8 @@ app.post('/api/data', authenticateToken, (req, res) => {
     if (!code || !nickname || !status) {
       return res.status(400).json({ message: 'Code, nickname, and status are required' });
     }
-
+    const dashCount = (code.match(/-/g) || []).length;
+    let category = dashCount === 2 ? 'klas' : '3dcim';
     const newEntry = {
       id: dataEntries.length + 1,
       code,
@@ -156,7 +157,8 @@ app.post('/api/data', authenticateToken, (req, res) => {
       status,
       instagram: instagram || null,
       discord: discord || null,
-      platform: platform || null
+      platform: platform || null,
+      category
     };
 
     dataEntries.push(newEntry);
