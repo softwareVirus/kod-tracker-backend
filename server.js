@@ -17,7 +17,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'], // React dev servers
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://kod-tracker-frontend.vercel.app'], // React dev servers
   credentials: true
 }));
 app.use(express.json());
