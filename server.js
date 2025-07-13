@@ -15,7 +15,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://levo-kod-app.vercel.app'], // React dev servers and Vercel
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://kod-tracker-frontend.vercel.app'], // React dev servers and Vercel
   credentials: true
 }));
 app.use(express.json());
