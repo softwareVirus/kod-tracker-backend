@@ -4,8 +4,6 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -17,7 +15,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://kod-tracker-frontend.vercel.app'], // React dev servers
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://levo-kod-app.vercel.app'], // React dev servers and Vercel
   credentials: true
 }));
 app.use(express.json());
@@ -36,41 +34,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 let users = [
   {
     id: 1,
-    username: 'admin987456123',
+    username: 'admin9582',
     password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
     role: 'admin'
   }
 ];
 
-// Data file path
-const DATA_FILE = path.join(__dirname, 'data.json');
-
-// Function to read data from JSON file
-const readDataFromFile = () => {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data).entries || [];
-    }
-    return [];
-  } catch (error) {
-    console.error('Error reading data file:', error);
-    return [];
-  }
-};
-
-// Function to write data to JSON file
-const writeDataToFile = (dataEntries) => {
-  try {
-    const data = { entries: dataEntries };
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error writing data file:', error);
-  }
-};
-
-// Initialize data from file
-let dataEntries = readDataFromFile();
+// In-memory data storage for Vercel deployment
+let dataEntries = [
+  
+];
 
 // JWT Middleware
 const authenticateToken = (req, res, next) => {
@@ -137,8 +110,6 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Get all data entries (protected)
 app.get('/api/data', authenticateToken, (req, res) => {
-  // Refresh data from file
-  dataEntries = readDataFromFile();
   res.json(dataEntries);
 });
 
@@ -146,8 +117,6 @@ app.get('/api/data', authenticateToken, (req, res) => {
 app.get('/api/data/search', authenticateToken, (req, res) => {
   const { nickname, discord, instagram } = req.query;
   
-  // Refresh data from file
-  dataEntries = readDataFromFile();
   let filteredData = dataEntries;
 
   if (nickname) {
@@ -180,9 +149,6 @@ app.post('/api/data', authenticateToken, (req, res) => {
       return res.status(400).json({ message: 'Code, nickname, and status are required' });
     }
 
-    // Refresh data from file
-    dataEntries = readDataFromFile();
-
     const newEntry = {
       id: dataEntries.length + 1,
       code,
@@ -194,7 +160,6 @@ app.post('/api/data', authenticateToken, (req, res) => {
     };
 
     dataEntries.push(newEntry);
-    writeDataToFile(dataEntries);
     res.status(201).json(newEntry);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -209,9 +174,6 @@ app.post('/api/data/bulk', authenticateToken, (req, res) => {
     if (!multiLineInput) {
       return res.status(400).json({ message: 'Multi-line input is required' });
     }
-
-    // Refresh data from file
-    dataEntries = readDataFromFile();
 
     const lines = multiLineInput.split('\n').filter(line => line.trim());
     const newEntries = [];
@@ -238,10 +200,10 @@ app.post('/api/data/bulk', authenticateToken, (req, res) => {
         let instagram = null;
         let discord = null;
 
-        if (platform.includes('Instagram')) {
-          instagram = socialInfo.replace('Instagram', '').trim();
-        } else if (platform.includes('dc')) {
-          discord = socialInfo.replace('dc', '').trim();
+        if (platform && platform.includes('Instagram')) {
+          instagram = socialInfo.trim();
+        } else if (platform && platform.includes('dc')) {
+          discord = socialInfo.trim();
         }
 
         const newEntry = {
@@ -260,7 +222,6 @@ app.post('/api/data/bulk', authenticateToken, (req, res) => {
     }
 
     dataEntries.push(...newEntries);
-    writeDataToFile(dataEntries);
     res.status(201).json({ 
       message: `${newEntries.length} entries added successfully`,
       entries: newEntries 
