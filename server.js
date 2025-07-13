@@ -184,7 +184,7 @@ app.post('/api/data/bulk', authenticateToken, (req, res) => {
       const parts = line.split(' - ');
       
       // Determine format based on number of dashes
-      const dashCount = (line.match(/-/g) || []).length;
+      const dashCount = (parts[0].match(/-/g) || []).length;
       let category = dashCount === 2 ? 'klas' : '3dcim';
       
       if (parts.length >= 3) {
